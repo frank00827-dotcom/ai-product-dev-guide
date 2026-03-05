@@ -1,0 +1,67 @@
+name: Docs CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check Markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: yes
+          config-file: .github/link-check-config.json
+        if: false  # 可选：暂时禁用链接检查
+      
+  validate-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Verify required files exist
+        run: |
+          files=(
+            "README.md"
+            "00-guide-overview.md"
+            "01-product-discovery.md"
+            "02-architecture-design.md"
+            "03-compliance-security.md"
+            "04-ai-dev-workflow.md"
+            "05-module-development.md"
+            "06-testing-qa.md"
+            "07-deployment-ops.md"
+            "08-iteration.md"
+            "LICENSE"
+          )
+          
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All required files present"
+      
+      - name: Check appendix files
+        run: |
+          files=(
+            "appendix/prompt-templates.md"
+            "appendix/checklists.md"
+            "appendix/adr-template.md"
+          )
+          
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing appendix file: $file"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All appendix files present"
